@@ -1,5 +1,14 @@
+# All Out War Config
+
+
+
+# CORE Villager settings
+coreVillagerValue: 5
+coreVillagerHealth: 100
+
+
+
 # Spawn MOB name and price(Emerald)
-test: tt
 mobs:
   - name: ZOMBIE
     price: 2
@@ -27,9 +36,6 @@ mobs:
     price: 64
   - name: WOLF
     price: 32
-
-
-
 
 
 

@@ -11,7 +11,7 @@ public class AOW extends JavaPlugin {
 		// getLogger().info("Enable plugin");
 		configLoader = new AOWConfigLoader(this);
 		getCommand("team").setExecutor(new AOWCommandExcutor(this));
-		getServer().getPluginManager().registerEvents(new AOWEventLestener(this),this);
+		getServer().getPluginManager().registerEvents(new AOWEventListener(this),this);
 	}
 	
 	@Override

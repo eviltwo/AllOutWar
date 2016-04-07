@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -40,16 +41,18 @@ import org.bukkit.scoreboard.Team;
 
 import com.eviltwo.alloutwar.AOWConfigLoader.SpawnMob;
 
-public class AOWEventLestener implements Listener {
+public class AOWEventListener implements Listener {
 	
 	private final AOW plugin;
 	private ScoreboardManager manager;
 	private Scoreboard board;
+	private AOWTitleSender titleSender;
 	
-	public AOWEventLestener(AOW plugin){
+	public AOWEventListener(AOW plugin){
 		this.plugin = plugin;
 		manager = Bukkit.getScoreboardManager();
 		board = manager.getMainScoreboard();
+		titleSender = new AOWTitleSender();
 	}
 	
 	@EventHandler
@@ -251,7 +254,6 @@ public class AOWEventLestener implements Listener {
 					}
 				}
 			}
-			Bukkit.broadcastMessage(team.getPrefix() + team.getName() + " CORE IS DEAD!" + team.getSuffix() + " (" + villagerCount + " core left)");
 			if(villagerCount == 0){
 				String title = team.getPrefix() + team.getName() + team.getSuffix() + " defeat!";
 				for(Entity searchEntity : entities){
@@ -262,14 +264,12 @@ public class AOWEventLestener implements Listener {
 					}
 				}
 				Bukkit.broadcastMessage(title);
-				/*
-				for(Player player : plugin.getServer().getOnlinePlayers()){
-					String title;
-					title = team.getPrefix() + team.getName() + team.getSuffix() + " defeat!";
-					plugin.titleSender.setTime_second(player, 0.1, 4.0, 0.5);
-					plugin.titleSender.sendTitle(player, "", subtitle);
-				}
-				*/
+				titleSender.setTime(0.5, 3.0, 0.5);
+				titleSender.sendTitle(title, null);
+			}else{
+				String deadCoreText = team.getPrefix() + team.getName() + " CORE IS DEAD!" + team.getSuffix() + " (" + villagerCount + " core left)";
+				titleSender.setTime(0.1, 3.0, 0.5);
+				titleSender.sendTitle(null, deadCoreText);
 			}
 		}
 	}

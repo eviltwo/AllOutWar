@@ -11,6 +11,8 @@ public class AOWConfigLoader {
 	
 	private Plugin plugin;
 	private List<SpawnMob> spawnMobs;
+	private int coreVillagerValue;
+	private int coreVillagerHealth;
 	
 	public AOWConfigLoader(Plugin plugin){
 		this.plugin = plugin;
@@ -40,6 +42,9 @@ public class AOWConfigLoader {
 		}
 		plugin.getLogger().info("Load : "+spawnMobs.size()+" mobs");
 		
+		coreVillagerValue = plugin.getConfig().getInt("coreVillagerValue");
+		coreVillagerHealth = plugin.getConfig().getInt("coreVillagerHealth");
+		
 		plugin.saveConfig();
 	}
 	
@@ -60,5 +65,13 @@ public class AOWConfigLoader {
 			this.price = price;
 			this.entityType = entityType;
 		}
+	}
+	
+	public int getCoreVillagerValue(){
+		return coreVillagerValue;
+	}
+	
+	public int getCoreVillagerHealth(){
+		return coreVillagerHealth;
 	}
 }

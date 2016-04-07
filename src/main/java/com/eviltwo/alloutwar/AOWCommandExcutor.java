@@ -63,7 +63,7 @@ public class AOWCommandExcutor implements CommandExecutor {
 					    	newTeam.setOption(Option.NAME_TAG_VISIBILITY,OptionStatus.ALWAYS);
 					    	sender.sendMessage(args[2] + " is leader!");
 					    	// give item
-					    	ItemStack is = new ItemStack(Material.MONSTER_EGG, 32);
+					    	ItemStack is = new ItemStack(Material.MONSTER_EGG, plugin.configLoader.getCoreVillagerValue());
 					    	ItemMeta meta = is.getItemMeta();
 					    	meta.setDisplayName("TEAM CORE");
 					    	List<String> lores = new ArrayList<>(Arrays.asList(args[1], "King villager spawn egg"));
