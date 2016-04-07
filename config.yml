@@ -1,0 +1,35 @@
+# Spawn MOB name and price(Emerald)
+test: tt
+mobs:
+  - name: ZOMBIE
+    price: 2
+  - name: SKELETON
+    price: 4
+  - name: CREEPER
+    price: 8
+  - name: BLAZE
+    price: 20
+  - name: CAVE_SPIDER
+    price: 15
+  - name: ENDERMAN
+    price: 15
+  - name: GHAST
+    price: 20
+  - name: IRON_GOLEM
+    price: 30
+  - name: SPIDER
+    price: 6
+  - name: WITCH
+    price: 15
+  - name: WITHER_SKULL
+    price: 25
+  - name: WITHER
+    price: 64
+  - name: WOLF
+    price: 32
+
+
+
+
+
+
