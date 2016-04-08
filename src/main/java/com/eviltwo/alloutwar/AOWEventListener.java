@@ -2,12 +2,10 @@ package com.eviltwo.alloutwar;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -16,17 +14,14 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.entity.VillagerAcquireTradeEvent;
-import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
@@ -237,9 +232,6 @@ public class AOWEventListener implements Listener {
 		Entity entity = e.getEntity();
 		if(entity.getCustomName().equals("CoreVillager")){
 			Team team = board.getEntryTeam(entity.getUniqueId().toString());
-			Set<String> sets = team.getEntries();
-			Object[] oPlayers = sets.toArray();
-			String[] sPlayers = new String[oPlayers.length];
 			List<Entity> entities = entity.getWorld().getEntities();
 			int villagerCount = 0;
 			for(Entity searchEntity : entities){

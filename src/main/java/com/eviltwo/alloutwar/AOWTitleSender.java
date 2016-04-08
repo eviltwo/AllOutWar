@@ -1,7 +1,6 @@
 package com.eviltwo.alloutwar;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 
 public class AOWTitleSender {
 	
