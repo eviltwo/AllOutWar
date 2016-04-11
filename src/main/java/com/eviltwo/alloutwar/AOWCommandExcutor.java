@@ -97,7 +97,7 @@ public class AOWCommandExcutor implements CommandExecutor {
 							return true;
 						}
 						// give item
-				    	ItemStack is = new ItemStack(Material.MONSTER_EGG, 32, (short)61);
+				    	ItemStack is = new ItemStack(Material.MONSTER_EGG, 32, (short)50);
 				    	ItemMeta meta = is.getItemMeta();
 				    	meta.setDisplayName("Zombie egg");
 				    	List<String> lores = new ArrayList<>(Arrays.asList("Team monster spawn egg", "ZOMBIE"));

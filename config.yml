@@ -8,33 +8,31 @@ coreVillagerHealth: 100
 
 
 
-# Spawn MOB name and price(Emerald)
+# Spawn entityID and price(Emerald)
 mobs:
-  - name: ZOMBIE
+  - name: Zombie
     price: 2
-  - name: SKELETON
+  - name: Skeleton
     price: 4
-  - name: CREEPER
+  - name: Creeper
     price: 8
-  - name: BLAZE
+  - name: Blaze
     price: 20
-  - name: CAVE_SPIDER
+  - name: CaveSpider
     price: 15
-  - name: ENDERMAN
+  - name: Enderman
     price: 15
-  - name: GHAST
+  - name: Ghast
     price: 20
-  - name: IRON_GOLEM
+  - name: IronGolem
     price: 30
-  - name: SPIDER
+  - name: Spider
     price: 6
-  - name: WITCH
+  - name: Witch
     price: 15
-  - name: WITHER_SKULL
-    price: 25
-  - name: WITHER
+  - name: Wither
     price: 64
-  - name: WOLF
+  - name: Wolf
     price: 32
 
 

@@ -25,7 +25,8 @@ public class AOWConfigLoader {
 		List<Map<?,?>> mobs = plugin.getConfig().getMapList("mobs");
 		spawnMobs = new ArrayList<>();
 		for(int i=0; i<mobs.size(); i++){
-			String name = (String)mobs.get(i).get("name");
+			String id = (String)mobs.get(i).get("name");
+			String name = EntityIdToTypeName(id);
 			int price = (int)mobs.get(i).get("price");
 			EntityType type;
 			try{
@@ -37,7 +38,7 @@ public class AOWConfigLoader {
 			if(type == null){
 				continue;
 			}
-			SpawnMob item = new SpawnMob(name, price, type);
+			SpawnMob item = new SpawnMob(id, name, price, type);
 			spawnMobs.add(item);
 		}
 		plugin.getLogger().info("Load : "+spawnMobs.size()+" mobs");
@@ -57,10 +58,12 @@ public class AOWConfigLoader {
 	}
 	
 	public class SpawnMob {
+		public String id;
 		public String name;
 		public int price;
 		public EntityType entityType;
-		public SpawnMob(String name, int price, EntityType entityType){
+		public SpawnMob(String id, String name, int price, EntityType entityType){
+			this.id = id;
 			this.name = name;
 			this.price = price;
 			this.entityType = entityType;
@@ -73,5 +76,17 @@ public class AOWConfigLoader {
 	
 	public int getCoreVillagerHealth(){
 		return coreVillagerHealth;
+	}
+	
+	public String EntityIdToTypeName(String id){
+		String typeName = "";
+		typeName += Character.toUpperCase(id.charAt(0));
+		for(int i=1; i<id.length(); i++){
+			if(Character.isUpperCase(id.charAt(i))){
+				typeName += "_";
+			}
+			typeName += Character.toUpperCase(id.charAt(i));
+		}
+		return typeName;
 	}
 }

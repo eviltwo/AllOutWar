@@ -1,7 +1,6 @@
 package com.eviltwo.alloutwar;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -14,6 +13,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Villager;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
@@ -23,9 +23,7 @@ import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.entity.VillagerAcquireTradeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.MerchantRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
@@ -42,6 +40,7 @@ public class AOWEventListener implements Listener {
 	private ScoreboardManager manager;
 	private Scoreboard board;
 	private AOWTitleSender titleSender;
+	private int villagerNumber = 0;
 	
 	public AOWEventListener(AOW plugin){
 		this.plugin = plugin;
@@ -76,8 +75,41 @@ public class AOWEventListener implements Listener {
 				Location location = new Location(player.getWorld(),x,y,z);
 				location.setYaw(player.getLocation().getYaw());
 				location.setDirection(player.getLocation().getDirection());
-				LivingEntity villager = (LivingEntity)player.getWorld().spawnEntity(location,EntityType.VILLAGER);
-				villager.teleport(location);
+				LivingEntity villager = null;
+				// send summon command (set store recipe)
+				String cmdText = "summon Villager "+location.getX()+" "+location.getY()+" "+location.getZ()+" {CustomName:\"CoreVillager"+villagerNumber+"\",Offers:{Recipes:[";
+				int max = plugin.configLoader.getSpawnMobSize();
+				for(int i=0; i<max; i++){
+					String itemText = "";
+					SpawnMob spawnMob = plugin.configLoader.getSpawnMob(i);
+					int price = spawnMob.price;
+					String entityId = spawnMob.id;
+					String entityName = spawnMob.name;
+					itemText += "{buy:{id:\"emerald\",Count:"+price+"},maxUses:9999999,sell:{id:\"spawn_egg\",Count:1,Damage:0,tag:{EntityTag:{id:"+entityId+"},display:{Name:"+entityId+", Lore:[\"Team monster spawn egg\",\""+entityName+"\"]},CustomNameVisible:1}}}";
+					if(i<max-1){
+						itemText += ",";
+					}
+					cmdText += itemText;
+				}
+				cmdText += "]}}";
+				plugin.commandSender.sendCommand(cmdText);
+				Collection<Entity> villagers = location.getWorld().getEntitiesByClasses(Villager.class);
+				for (Entity entity : villagers) {
+					if(entity.getCustomName().equals("CoreVillager"+villagerNumber) == false){
+						continue;
+					}
+					Team t = board.getEntryTeam(entity.getUniqueId().toString());
+					if(t!=null){
+						continue;
+					}
+					villager = (LivingEntity)entity;
+					break;
+				}
+				villagerNumber++;
+				if(villager == null){
+					plugin.getLogger().warning("CoreVillager is not exist.");
+					return;
+				}
 				villager.setCustomName("CoreVillager");
 				villager.setCustomNameVisible(true);
 				villager.setAI(false);
@@ -89,12 +121,14 @@ public class AOWEventListener implements Listener {
 				newItem.setItemMeta(oldItem.getItemMeta());
 				player.getInventory().setItemInMainHand(newItem);
 				// particle
-				player.getWorld().spawnParticle(Particle.EXPLOSION_HUGE, villager.getLocation(), 1);
+				player.getWorld().spawnParticle(Particle.EXPLOSION_HUGE, location, 1);
+				return;
 			}
 		}
 		// Monster
 		if(e.getAction() == Action.RIGHT_CLICK_BLOCK || e.getAction() == Action.RIGHT_CLICK_AIR){
 			if(mainMeta.getLore() != null && mainMeta.getLore().get(0).equals("Team monster spawn egg")){
+				e.setCancelled(true);
 				// get team
 				Team team = board.getEntryTeam(player.getName());
 				if(team == null){
@@ -113,10 +147,17 @@ public class AOWEventListener implements Listener {
 				ball.setMetadata("Shooter", meta2);
 				// less item
 				int haveAmount = player.getInventory().getItemInMainHand().getAmount();
-				ItemStack oldItem = player.getInventory().getItemInMainHand();
-				ItemStack newItem = new ItemStack(oldItem.getType(),haveAmount-1);
-				newItem.setItemMeta(oldItem.getItemMeta());
-				player.getInventory().setItemInMainHand(newItem);
+				haveAmount -= 1;
+				if(haveAmount==0){
+					ItemStack newItem = new ItemStack(Material.AIR,0);
+					player.getInventory().setItemInMainHand(newItem);
+				}else{
+					ItemStack oldItem = player.getInventory().getItemInMainHand();
+					ItemStack newItem = new ItemStack(oldItem.getType(),haveAmount);
+					newItem.setItemMeta(oldItem.getItemMeta());
+					player.getInventory().setItemInMainHand(newItem);
+				}
+				return;
 			}
 		}
 	}
@@ -141,10 +182,6 @@ public class AOWEventListener implements Listener {
 		Entity atkEntity = e.getDamager();
 		Entity dmgEntity = e.getEntity();
 		Team atkTeam = board.getEntryTeam(atkEntity.getUniqueId().toString());
-		/*if(atkEntity instanceof Player){
-			plugin.getLogger().info("Player attack " + ((Player)atkEntity).getName());
-			atkTeam = board.getEntryTeam(((Player)atkEntity).getName());
-		}*/
 		Team dmgTeam = board.getEntryTeam(dmgEntity.getUniqueId().toString());
 		if(dmgEntity instanceof Player){
 			dmgTeam = board.getEntryTeam(((Player)dmgEntity).getName());
@@ -174,43 +211,29 @@ public class AOWEventListener implements Listener {
 				monster.setCustomName(spawnName);
 				monster.setCustomNameVisible(true);
 				team.addEntry(monster.getUniqueId().toString());
-            	/*
-                Snowball bomb = (Snowball) e.getEntity();
-                bomb.getWorld().createExplosion(bomb.getLocation(), 4.0F, false); //test 
-                */
         	}
         }
     }
 	
 	@EventHandler
-	public void onPlayerMove(PlayerMoveEvent evt) {
-		/*
-	    // プレイヤーの位置を取得します。
-	    Location loc = evt.getPlayer().getLocation();
-	    // 位置のY座標を+5します。位置情報を変更しているだけで、実際にプレイヤーの位置が移動するわけではないことに注意してください。
-	    loc.setY(loc.getY() + 5);
-	    // 指定位置のブロックを取得します。
-	    Block b = loc.getBlock();
-	    // ブロックの種類に石（STONE）を設定します。
-	    b.setType(Material.STONE);
-	    */
-	}
-	
-	@EventHandler
 	public void onVillagerTrade(VillagerAcquireTradeEvent e){
-		plugin.getLogger().info("nomal trade");
+		/*
 		if(e.getEntity().getCustomName().equals("CoreVillager")){
-			plugin.getLogger().info("core trade");
 			List<MerchantRecipe> recipes = new ArrayList<>();
 			int max = plugin.configLoader.getSpawnMobSize();
 			for(int i=0; i<max; i++){
 				SpawnMob spawnMob = plugin.configLoader.getSpawnMob(i);
 				ItemStack isAdd = new ItemStack(Material.EMERALD, spawnMob.price);
-				ItemStack isResult = new ItemStack(Material.MONSTER_EGG, 1);
-		    	ItemMeta meta = isResult.getItemMeta();
+				SpawnEgg sEgg = new SpawnEgg(EntityType.ZOMBIE);
+				ItemStack isResult = sEgg.toItemStack();
+				isResult.setAmount(1);
+				//ItemStack isResult = new ItemStack(Material.MONSTER_EGG, 1);
+				//isResult.setData(sEgg);
+				ItemMeta meta = isResult.getItemMeta();
+				// /give @p spawn_egg 1 0 {EntityTag:{id:EntityHorse,Type:4,SaddleItem:{id:saddle},Tame:1b,Age:0},display:{Name:Tom},CustomNameVisible:1b}
 		    	meta.setDisplayName(spawnMob.name + " Egg");
-		    	List<String> lores = new ArrayList<>(Arrays.asList("Team monster spawn egg", spawnMob.name));
-		    	meta.setLore(lores);
+		    	//List<String> lores = new ArrayList<>(Arrays.asList("Team monster spawn egg", spawnMob.name));
+		    	//meta.setLore(lores);
 		    	isResult.setItemMeta(meta);
 				MerchantRecipe recipe = new MerchantRecipe(isResult, 999999);
 				recipe.addIngredient(isAdd);
@@ -222,6 +245,7 @@ public class AOWEventListener implements Listener {
 			}
 			e.getEntity().setRecipes(recipes);
 		}
+		*/
 	}
 	
 	@EventHandler
@@ -265,5 +289,4 @@ public class AOWEventListener implements Listener {
 			}
 		}
 	}
-	
 }
