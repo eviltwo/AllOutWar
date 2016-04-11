@@ -35,80 +35,98 @@ public class AOWCommandExcutor implements CommandExecutor {
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		if (cmd.getName().equalsIgnoreCase("team")) {
-			if (args.length == 4) {
+			if(args.length >= 1){
 				if(args[0].equals("create")){
+					if(args.length != 4){
+						sender.sendMessage("/team create <TeamName> <Player> <TeamColor>");
+						return true;
+					}
 					Team team = board.getTeam(args[1]);
 					if(team == null){
 						Player target = Bukkit.getPlayerExact(args[2]);
 					    if ( target == null ) {
-					        sender.sendMessage("Player name " + args[2] + " is not found!");
-					        return true;
-					    } else {
-					    	ChatColor c = NameToColor(args[3]);
-	                        if (c == null) {
-	                            sender.sendMessage("Valid values for option color are: " + args[3]);
-	                            return true;
-	                        }
-					    	Team newTeam = board.registerNewTeam(args[1]);
-					    	newTeam.addEntry(target.getName());
-					    	newTeam.setDisplayName(args[1]);
-					    	newTeam.setAllowFriendlyFire(false);
-					    	newTeam.setPrefix(c.toString());
-					    	newTeam.setSuffix(ChatColor.RESET.toString());
-					    	newTeam.setOption(Option.NAME_TAG_VISIBILITY,OptionStatus.ALWAYS);
-					    	sender.sendMessage(args[2] + " is leader!");
-					    	// give item
-					    	ItemStack is = new ItemStack(Material.MONSTER_EGG, plugin.configLoader.getCoreVillagerValue());
-					    	ItemMeta meta = is.getItemMeta();
-					    	meta.setDisplayName("TEAM CORE");
-					    	List<String> lores = new ArrayList<>(Arrays.asList(args[1], "King villager spawn egg"));
-					    	meta.setLore(lores);
-					    	is.setItemMeta(meta);
-					    	// change color hint https://bukkit.org/threads/giving-players-colored-wool.61779/
-					    	PlayerInventory inventory = plugin.getServer().getPlayer(args[2]).getInventory();
-					        inventory.addItem(is);
+					        sender.sendMessage("Player name " + args[2] + " is not exists.");
 					        return true;
 					    }
+				    	ChatColor c = NameToColor(args[3]);
+                        if (c == null) {
+                            sender.sendMessage("Valid values for option color are: " + args[3]);
+                            return true;
+                        }
+				    	Team newTeam = board.registerNewTeam(args[1]);
+				    	newTeam.addEntry(target.getName());
+				    	newTeam.setDisplayName(args[1]);
+				    	newTeam.setAllowFriendlyFire(false);
+				    	newTeam.setPrefix(c.toString());
+				    	newTeam.setSuffix(ChatColor.RESET.toString());
+				    	newTeam.setOption(Option.NAME_TAG_VISIBILITY,OptionStatus.ALWAYS);
+				    	sender.sendMessage(args[2] + " is leader!");
+				    	// give item
+				    	ItemStack is = new ItemStack(Material.MONSTER_EGG, plugin.configLoader.getCoreVillagerValue());
+				    	ItemMeta meta = is.getItemMeta();
+				    	meta.setDisplayName("TEAM CORE");
+				    	List<String> lores = new ArrayList<>(Arrays.asList(args[1], "King villager spawn egg"));
+				    	meta.setLore(lores);
+				    	is.setItemMeta(meta);
+				    	// change color hint https://bukkit.org/threads/giving-players-colored-wool.61779/
+				    	PlayerInventory inventory = plugin.getServer().getPlayer(args[2]).getInventory();
+				        inventory.addItem(is);
+				        return true;
 					}else{
 						sender.sendMessage("Team <" + args[1] + "> is already exists.");
 					}
 				}
-			}
-			if (args.length == 2) {
 				if(args[0].equals("remove")){
+					if (args.length != 2) {
+						sender.sendMessage("/team remove <TeamName>");
+						return true;
+					}
 					Team team = board.getTeam(args[1]);
 					if(team == null){
 						sender.sendMessage("Team <" + args[1] + "> is not exists.");
-						return false;
+						return true;
 					}
 					team.unregister();
 					sender.sendMessage("Removed team " + args[1]);
 					return true;
 				}
-			}
-			if (args.length == 1) {
-				if(args[0].equals("debug")){
-					plugin.getLogger().info("Debug command");
-					if(sender instanceof Player){
-						Player player = (Player)sender;
-						Team team = board.getEntryTeam(player.getName());
-						if(team == null){
-							plugin.getLogger().warning("You are alone. Please join team!");
-							return true;
+				if(args[0].equals("join")){
+					if (args.length < 2 || args.length > 3) {
+						sender.sendMessage("/team join <TeamName>");
+						return true;
+					}
+					Team team = board.getTeam(args[1]);
+					if(team == null){
+						sender.sendMessage("Team <" + args[1] + "> is not exists.");
+						return true;
+					}
+					if(args.length == 2){
+						if(sender instanceof Player){
+							team.addEntry(((Player)sender).getName());
+							sender.sendMessage("You join \""+team.getName()+"\" team.");
+						}else{
+							sender.sendMessage("This command is player only.");
+							sender.sendMessage("/team join <Player>");
 						}
-						// give item
-				    	ItemStack is = new ItemStack(Material.MONSTER_EGG, 32, (short)50);
-				    	ItemMeta meta = is.getItemMeta();
-				    	meta.setDisplayName("Zombie egg");
-				    	List<String> lores = new ArrayList<>(Arrays.asList("Team monster spawn egg", "ZOMBIE"));
-				    	meta.setLore(lores);
-				    	is.setItemMeta(meta);
-				    	//SpawnEgg egg = new SpawnEgg(EntityType.BLAZE);
-				    	//is.setData(egg);
-				    	//is.setDurability(durability);
-				    	PlayerInventory inventory = player.getInventory();
-				        inventory.addItem(is);
-				        return true;
+					}else{
+						Player target = Bukkit.getPlayerExact(args[2]);
+					    if ( target == null ) {
+					        sender.sendMessage("Player name " + args[2] + " is not exists.");
+					        return true;
+					    }
+					    team.addEntry(target.getName());
+					    target.sendMessage("You join \""+team.getName()+"\" team.");
+					    sender.sendMessage(target.getName()+" join \""+team.getName()+"\" team.");
+					}
+					return true;
+				}
+				if(args[0].equals("debug")){
+					if (args.length != 1) {
+						sender.sendMessage("/team debug");
+						return true;
+					}
+					sender.sendMessage("Debug command");
+					if(sender instanceof Player){
 					}
 				}
 			}
