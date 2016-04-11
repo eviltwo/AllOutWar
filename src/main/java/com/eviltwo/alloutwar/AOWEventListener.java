@@ -32,7 +32,7 @@ import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.ScoreboardManager;
 import org.bukkit.scoreboard.Team;
 
-import com.eviltwo.alloutwar.AOWConfigLoader.SpawnMob;
+import com.eviltwo.alloutwar.AOWConfigLoader.SpecialMob;
 
 public class AOWEventListener implements Listener {
 	
@@ -59,7 +59,7 @@ public class AOWEventListener implements Listener {
 		ItemMeta mainMeta = mainIS.getItemMeta();
 		// Villager
 		if(e.getAction() == Action.RIGHT_CLICK_BLOCK){
-			if(mainMeta.getDisplayName().equals("TEAM CORE")){
+			if(mainMeta != null && mainMeta.getDisplayName() != null && mainMeta.getDisplayName().equals("TEAM CORE")){
 				// get team
 				Team team = board.getEntryTeam(player.getName());
 				if(team == null){
@@ -78,10 +78,13 @@ public class AOWEventListener implements Listener {
 				LivingEntity villager = null;
 				// send summon command (set store recipe)
 				String cmdText = "summon Villager "+location.getX()+" "+location.getY()+" "+location.getZ()+" {CustomName:\"CoreVillager"+villagerNumber+"\",Offers:{Recipes:[";
-				int max = plugin.configLoader.getSpawnMobSize();
+				int max = plugin.configLoader.getMobListSize();
 				for(int i=0; i<max; i++){
 					String itemText = "";
-					SpawnMob spawnMob = plugin.configLoader.getSpawnMob(i);
+					SpecialMob spawnMob = plugin.configLoader.getMob(i);
+					if(spawnMob.isTrade == false){
+						continue;
+					}
 					int price = spawnMob.price;
 					String entityId = spawnMob.id;
 					String entityName = spawnMob.name;
@@ -253,8 +256,28 @@ public class AOWEventListener implements Listener {
 		if(e == null){
 			return;
 		}
-		Entity entity = e.getEntity();
-		if(entity.getCustomName().equals("CoreVillager")){
+		LivingEntity entity = e.getEntity();
+		LivingEntity killer = entity.getKiller();
+		// Mob dead
+		Team deadTeam = board.getEntryTeam(entity.getUniqueId().toString());
+		if(killer != null){
+			Team killerTeam = board.getEntryTeam(killer.getUniqueId().toString());
+			if(killer instanceof Player){
+				killerTeam = board.getEntryTeam(((Player)killer).getName());
+			}
+			if(killerTeam != null){
+				SpecialMob deadMob = plugin.configLoader.getMobFromType(entity.getType());
+				if(deadMob != null && deadMob.isReward){
+					int reward = deadMob.reward;
+					if(deadTeam != null && deadTeam.equals(killerTeam) && deadMob.isTrade){
+						reward = deadMob.price;
+					}
+					entity.getWorld().dropItem(entity.getLocation(), new ItemStack(Material.EMERALD, reward));
+				}
+			}
+		}
+		// Villager dead
+		if(entity.getCustomName() != null && entity.getCustomName().equals("CoreVillager")){
 			Team team = board.getEntryTeam(entity.getUniqueId().toString());
 			List<Entity> entities = entity.getWorld().getEntities();
 			int villagerCount = 0;

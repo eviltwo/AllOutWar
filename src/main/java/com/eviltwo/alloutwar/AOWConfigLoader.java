@@ -10,7 +10,7 @@ import org.bukkit.plugin.Plugin;
 public class AOWConfigLoader {
 	
 	private Plugin plugin;
-	private List<SpawnMob> spawnMobs;
+	private List<SpecialMob> loadedMobs;
 	private int coreVillagerValue;
 	private int coreVillagerHealth;
 	
@@ -23,11 +23,18 @@ public class AOWConfigLoader {
 		plugin.saveDefaultConfig();
 		
 		List<Map<?,?>> mobs = plugin.getConfig().getMapList("mobs");
-		spawnMobs = new ArrayList<>();
+		loadedMobs = new ArrayList<>();
 		for(int i=0; i<mobs.size(); i++){
 			String id = (String)mobs.get(i).get("name");
 			String name = EntityIdToTypeName(id);
-			int price = (int)mobs.get(i).get("price");
+			int price = -1;
+			if(mobs.get(i).containsKey("price")){
+			 price = (int)mobs.get(i).get("price");
+			}
+			int reward = -1;
+			if(mobs.get(i).containsKey("reward")){
+				reward = (int)mobs.get(i).get("reward");
+			}
 			EntityType type;
 			try{
 				type = EntityType.valueOf(name);
@@ -38,10 +45,10 @@ public class AOWConfigLoader {
 			if(type == null){
 				continue;
 			}
-			SpawnMob item = new SpawnMob(id, name, price, type);
-			spawnMobs.add(item);
+			SpecialMob item = new SpecialMob(id, name, price, reward, type);
+			loadedMobs.add(item);
 		}
-		plugin.getLogger().info("Load : "+spawnMobs.size()+" mobs");
+		plugin.getLogger().info("Load : "+loadedMobs.size()+" mobs");
 		
 		coreVillagerValue = plugin.getConfig().getInt("coreVillagerValue");
 		coreVillagerHealth = plugin.getConfig().getInt("coreVillagerHealth");
@@ -49,24 +56,39 @@ public class AOWConfigLoader {
 		plugin.saveConfig();
 	}
 	
-	public int getSpawnMobSize(){
-		return spawnMobs.size();
+	public int getMobListSize(){
+		return loadedMobs.size();
 	}
 	
-	public SpawnMob getSpawnMob(int index){
-		return spawnMobs.get(index);
+	public SpecialMob getMob(int index){
+		return loadedMobs.get(index);
 	}
 	
-	public class SpawnMob {
+	public SpecialMob getMobFromType(EntityType entityType) {
+		for (SpecialMob mob : loadedMobs) {
+			if(mob.entityType.equals(entityType)){
+				return mob;
+			}
+		}
+		return null;
+	}
+	
+	public class SpecialMob {
 		public String id;
 		public String name;
-		public int price;
+		public int price = 0;
+		public int reward = 0;
 		public EntityType entityType;
-		public SpawnMob(String id, String name, int price, EntityType entityType){
+		public boolean isTrade = false;
+		public boolean isReward = false;;
+		public SpecialMob(String id, String name, int price, int reward,  EntityType entityType){
 			this.id = id;
 			this.name = name;
 			this.price = price;
+			this.reward = reward;
 			this.entityType = entityType;
+			this.isTrade = price > 0;
+			this.isReward = reward > 0;
 		}
 	}
 	

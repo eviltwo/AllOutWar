@@ -1,6 +1,6 @@
 name: AllOutWar
 main: com.eviltwo.alloutwar.AOW
-version: 0.6.3
+version: 0.6.4
 
 commands:
    team:

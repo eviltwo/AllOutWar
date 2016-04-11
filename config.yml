@@ -8,32 +8,59 @@ coreVillagerHealth: 100
 
 
 
-# Spawn entityID and price(Emerald)
+#　EntityID, Egg price, Kill drop reward
 mobs:
   - name: Zombie
-    price: 2
-  - name: Skeleton
     price: 4
+    reward: 6
+  - name: Skeleton
+    price: 6
+    reward: 8
   - name: Creeper
-    price: 8
-  - name: Blaze
-    price: 20
+    price: 10
+    reward: 14
+  - name: Spider
+    price: 10
+    reward: 12
   - name: CaveSpider
     price: 15
-  - name: Enderman
-    price: 15
-  - name: Ghast
+    reward: 18
+  - name: Blaze
     price: 20
+    reward: 26
+  - name: Enderman
+    price: 24
+    reward: 28
+  - name: Ghast
+    price: 30
+    reward: 36
   - name: IronGolem
     price: 30
-  - name: Spider
-    price: 6
+    reward: 45
   - name: Witch
-    price: 15
+    price: 30
+    reward: 40
   - name: Wither
     price: 64
+    reward: 96
   - name: Wolf
     price: 32
+    reward: 48
+  - name: Rabbit
+    reward: 1
+  - name: Bat
+    reward: 1
+  - name: Pig
+    reward: 1
+  - name: Sheep
+    reward: 1
+  - name: Cow
+    reward: 1
+  - name: Chicken
+    reward: 1
+  - name: Squid
+    reward: 2
+  
 
 
 
