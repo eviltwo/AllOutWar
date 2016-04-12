@@ -19,6 +19,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.entity.VillagerAcquireTradeEvent;
@@ -176,7 +177,6 @@ public class AOWEventListener implements Listener {
 		if(team == null){
 			return;
 		}
-		plugin.getLogger().info("set team " + event.getEntity().getName() + " -> " + team.getName());
 		team.addEntry(event.getEntity().getUniqueId().toString());
 	}
 	
@@ -220,35 +220,7 @@ public class AOWEventListener implements Listener {
 	
 	@EventHandler
 	public void onVillagerTrade(VillagerAcquireTradeEvent e){
-		/*
-		if(e.getEntity().getCustomName().equals("CoreVillager")){
-			List<MerchantRecipe> recipes = new ArrayList<>();
-			int max = plugin.configLoader.getSpawnMobSize();
-			for(int i=0; i<max; i++){
-				SpawnMob spawnMob = plugin.configLoader.getSpawnMob(i);
-				ItemStack isAdd = new ItemStack(Material.EMERALD, spawnMob.price);
-				SpawnEgg sEgg = new SpawnEgg(EntityType.ZOMBIE);
-				ItemStack isResult = sEgg.toItemStack();
-				isResult.setAmount(1);
-				//ItemStack isResult = new ItemStack(Material.MONSTER_EGG, 1);
-				//isResult.setData(sEgg);
-				ItemMeta meta = isResult.getItemMeta();
-				// /give @p spawn_egg 1 0 {EntityTag:{id:EntityHorse,Type:4,SaddleItem:{id:saddle},Tame:1b,Age:0},display:{Name:Tom},CustomNameVisible:1b}
-		    	meta.setDisplayName(spawnMob.name + " Egg");
-		    	//List<String> lores = new ArrayList<>(Arrays.asList("Team monster spawn egg", spawnMob.name));
-		    	//meta.setLore(lores);
-		    	isResult.setItemMeta(meta);
-				MerchantRecipe recipe = new MerchantRecipe(isResult, 999999);
-				recipe.addIngredient(isAdd);
-				if(i<max-1){
-					recipes.add(recipe);
-				}else{
-					e.setRecipe(recipe);
-				}
-			}
-			e.getEntity().setRecipes(recipes);
-		}
-		*/
+		
 	}
 	
 	@EventHandler
@@ -311,5 +283,30 @@ public class AOWEventListener implements Listener {
 				titleSender.sendTitle(null, deadCoreText);
 			}
 		}
+	}
+	
+	@EventHandler
+	public void onTargetEntity(EntityTargetEvent e){
+		Entity atkEntity = e.getEntity();
+		Team atkTeam = getTeam(atkEntity);
+		Entity tgtEntity = e.getTarget();
+		Team tgtTeam = getTeam(tgtEntity);
+		if(atkTeam != null && tgtTeam != null){
+			if(atkTeam.equals(tgtTeam)){
+				e.setCancelled(true);
+				return;
+			}
+		}
+	}
+	
+	public Team getTeam(Entity entity){
+		if(entity == null){
+			return null;
+		}
+		Team team = board.getEntryTeam(entity.getUniqueId().toString());
+		if(entity instanceof Player){
+			team = board.getEntryTeam(((Player)entity).getName());
+		}
+		return team;
 	}
 }

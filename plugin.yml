@@ -1,10 +1,10 @@
 name: AllOutWar
 main: com.eviltwo.alloutwar.AOW
-version: 0.6.4
+version: 0.6.5
 
 commands:
    team:
       description: This is a demo command.
-      usage: /<command> [create/remove] <TeamName> <Player> <TeamColor>
+      usage: /<command> [create/join/remove] <TeamName>...
       permission: tutorialplugin.basic
       permission-message: You don't have <permission>
