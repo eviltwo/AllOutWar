@@ -14,6 +14,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
+import org.bukkit.entity.Wolf;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
@@ -273,6 +274,14 @@ public class AOWEventListener implements Listener {
 				monster.setCustomName(spawnName);
 				monster.setCustomNameVisible(true);
 				team.addEntry(monster.getUniqueId().toString());
+				// Setting specific
+				if(monster instanceof Wolf){
+					Wolf wolf = (Wolf)monster;
+					wolf.setAdult();
+					wolf.setSitting(false);
+					wolf.setTamed(true);
+					wolf.setOwner(shotPlayer);
+				}
         	}
         }
     }
@@ -290,12 +299,9 @@ public class AOWEventListener implements Listener {
 		LivingEntity entity = e.getEntity();
 		LivingEntity killer = entity.getKiller();
 		// Mob dead
-		Team deadTeam = board.getEntryTeam(entity.getUniqueId().toString());
+		Team deadTeam = getTeam(entity);
 		if(killer != null){
-			Team killerTeam = board.getEntryTeam(killer.getUniqueId().toString());
-			if(killer instanceof Player){
-				killerTeam = board.getEntryTeam(((Player)killer).getName());
-			}
+			Team killerTeam = getTeam(killer);
 			if(killerTeam != null){
 				SpecialMob deadMob = plugin.configLoader.getMobFromType(entity.getType());
 				if(deadMob != null && deadMob.isReward){

@@ -65,7 +65,7 @@ public class AOWCommandExcutor implements CommandExecutor {
 				    	ItemStack is = new ItemStack(Material.MONSTER_EGG, plugin.configLoader.getCoreVillagerValue());
 				    	ItemMeta meta = is.getItemMeta();
 				    	meta.setDisplayName("TEAM CORE");
-				    	List<String> lores = new ArrayList<>(Arrays.asList(args[1], "King villager spawn egg"));
+				    	List<String> lores = new ArrayList<>(Arrays.asList("Core villager spawn egg"));
 				    	meta.setLore(lores);
 				    	is.setItemMeta(meta);
 				    	// change color hint https://bukkit.org/threads/giving-players-colored-wool.61779/
