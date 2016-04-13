@@ -23,6 +23,7 @@ import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.entity.VillagerAcquireTradeEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -33,6 +34,7 @@ import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.ScoreboardManager;
 import org.bukkit.scoreboard.Team;
 
+import com.eviltwo.alloutwar.AOWArmorMaterial.AOWArmorType;
 import com.eviltwo.alloutwar.AOWConfigLoader.SpecialMob;
 
 public class AOWEventListener implements Listener {
@@ -163,6 +165,14 @@ public class AOWEventListener implements Listener {
 				}
 				return;
 			}
+		}
+	}
+	
+	@EventHandler
+	public void onClickEntity(PlayerInteractEntityEvent e){
+		Team playerTeam = getTeam(e.getPlayer());
+		if(playerTeam != null){
+			
 		}
 	}
 	
