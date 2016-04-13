@@ -71,6 +71,9 @@ public class AOWCommandExcutor implements CommandExecutor {
 				    	// change color hint https://bukkit.org/threads/giving-players-colored-wool.61779/
 				    	PlayerInventory inventory = plugin.getServer().getPlayer(args[2]).getInventory();
 				        inventory.addItem(is);
+				        Bukkit.broadcastMessage("Created the team \""+newTeam.getName()+"\" !");
+				        Bukkit.broadcastMessage("You can join team \""+newTeam.getName()+"\".");
+				        Bukkit.broadcastMessage("/team join "+newTeam.getName());
 				        return true;
 					}else{
 						sender.sendMessage("Team <" + args[1] + "> is already exists.");
@@ -87,17 +90,17 @@ public class AOWCommandExcutor implements CommandExecutor {
 						return true;
 					}
 					team.unregister();
-					sender.sendMessage("Removed team " + args[1]);
+					Bukkit.broadcastMessage("Removed the team \""+args[1]+"\"");
 					return true;
 				}
 				if(args[0].equals("join")){
 					if (args.length < 2 || args.length > 3) {
-						sender.sendMessage("/team join <TeamName>");
+						sender.sendMessage("/team join <TeamName> [Player]");
 						return true;
 					}
 					Team team = board.getTeam(args[1]);
 					if(team == null){
-						sender.sendMessage("Team <" + args[1] + "> is not exists.");
+						sender.sendMessage("Team \"" + args[1] + "\" is not exists.");
 						return true;
 					}
 					if(args.length == 2){
@@ -106,7 +109,7 @@ public class AOWCommandExcutor implements CommandExecutor {
 							sender.sendMessage("You join \""+team.getName()+"\" team.");
 						}else{
 							sender.sendMessage("This command is player only.");
-							sender.sendMessage("/team join <Player>");
+							sender.sendMessage("/team join <TeamName> <Player>");
 						}
 					}else{
 						Player target = Bukkit.getPlayerExact(args[2]);
@@ -115,8 +118,41 @@ public class AOWCommandExcutor implements CommandExecutor {
 					        return true;
 					    }
 					    team.addEntry(target.getName());
-					    target.sendMessage("You join \""+team.getName()+"\" team.");
-					    sender.sendMessage(target.getName()+" join \""+team.getName()+"\" team.");
+					    Bukkit.broadcastMessage(target.getName()+" join \""+team.getName()+"\" team.");
+					}
+					return true;
+				}
+				if(args[0].equals("leave")){
+					if (args.length < 1 || args.length > 2) {
+						sender.sendMessage("/team leave [Player]");
+						return true;
+					}
+					if(args.length == 1){
+						if(sender instanceof Player){
+							Team team = board.getEntryTeam(sender.getName());
+							if(team == null){
+								sender.sendMessage(sender.getName() + " are not entry team.");
+								return true;
+							}
+							team.removeEntry(sender.getName());
+						    Bukkit.broadcastMessage(sender.getName()+" leave \""+team.getName()+"\" team.");
+						}else{
+							sender.sendMessage("This command is player only.");
+							sender.sendMessage("/team leave <Player>");
+						}
+					}else{
+						Player target = Bukkit.getPlayerExact(args[1]);
+					    if ( target == null ) {
+					        sender.sendMessage("Player name " + args[1] + " is not exists.");
+					        return true;
+					    }
+					    Team team = board.getEntryTeam(target.getName());
+						if(team == null){
+							sender.sendMessage(target.getName() + "are not entry team.");
+							return true;
+						}
+					    team.removeEntry(target.getName());
+					    Bukkit.broadcastMessage(target.getName()+" leave \""+team.getName()+"\" team.");
 					}
 					return true;
 				}

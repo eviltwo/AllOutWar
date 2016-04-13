@@ -25,6 +25,7 @@ import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.entity.VillagerAcquireTradeEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
@@ -133,7 +134,7 @@ public class AOWEventListener implements Listener {
 		}
 		// Monster
 		if(e.getAction() == Action.RIGHT_CLICK_BLOCK || e.getAction() == Action.RIGHT_CLICK_AIR){
-			if(mainMeta.getLore() != null && mainMeta.getLore().get(0).equals("Team monster spawn egg")){
+			if(mainMeta != null && mainMeta.getLore() != null && mainMeta.getLore().get(0).equals("Team monster spawn egg")){
 				e.setCancelled(true);
 				// get team
 				Team team = board.getEntryTeam(player.getName());
@@ -170,9 +171,57 @@ public class AOWEventListener implements Listener {
 	
 	@EventHandler
 	public void onClickEntity(PlayerInteractEntityEvent e){
-		Team playerTeam = getTeam(e.getPlayer());
-		if(playerTeam != null){
-			
+		Player player = e.getPlayer();
+		Team playerTeam = getTeam(player);
+		Entity clickedEntity = e.getRightClicked();
+		Team clickedTeam = getTeam(clickedEntity);
+		ItemStack mainItem = player.getEquipment().getItemInMainHand();
+		if(AOWArmorMaterial.fromMaterial(mainItem.getType()) != null){
+			AOWArmorMaterial armor = AOWArmorMaterial.fromMaterial(mainItem.getType());
+			if(clickedEntity.getType().equals(EntityType.ZOMBIE) || clickedEntity.getType().equals(EntityType.SKELETON)){
+				if(playerTeam != null && clickedTeam != null && playerTeam.equals(clickedTeam)){
+					if(clickedEntity instanceof LivingEntity){
+						LivingEntity lEntity = (LivingEntity)clickedEntity;
+						EntityEquipment equipment = lEntity.getEquipment();
+						if(armor.getType().equals(AOWArmorType.HELMET)){
+							if(equipment.getHelmet().getType().equals(Material.AIR) == false){
+								lEntity.getWorld().dropItem(lEntity.getEyeLocation(), new ItemStack(equipment.getHelmet().getType(), 1));
+							}
+							equipment.setHelmet(mainItem);
+							player.getEquipment().setItemInMainHand(new ItemStack(Material.AIR));
+							e.setCancelled(true);
+						}else if(armor.getType().equals(AOWArmorType.CHESTPLATE)){
+							if(equipment.getChestplate().getType().equals(Material.AIR) == false){
+								lEntity.getWorld().dropItem(lEntity.getLocation(), new ItemStack(equipment.getChestplate()));
+							}
+							equipment.setChestplate(mainItem);
+							player.getEquipment().setItemInMainHand(new ItemStack(Material.AIR));
+							e.setCancelled(true);
+						}else if(armor.getType().equals(AOWArmorType.LEGGINGS)){
+							if(equipment.getLeggings().getType().equals(Material.AIR) == false){
+								lEntity.getWorld().dropItem(lEntity.getLocation(), new ItemStack(equipment.getLeggings()));
+							}
+							equipment.setLeggings(mainItem);
+							player.getEquipment().setItemInMainHand(new ItemStack(Material.AIR));
+							e.setCancelled(true);
+						}else if(armor.getType().equals(AOWArmorType.BOOTS)){
+							if(equipment.getBoots().getType().equals(Material.AIR) == false){
+								lEntity.getWorld().dropItem(lEntity.getLocation(), new ItemStack(equipment.getBoots()));
+							}
+							equipment.setBoots(mainItem);
+							player.getEquipment().setItemInMainHand(new ItemStack(Material.AIR));
+							e.setCancelled(true);
+						}else if(armor.getType().equals(AOWArmorType.WEAPON)){
+							if(equipment.getItemInMainHand().getType().equals(Material.AIR) == false){
+								lEntity.getWorld().dropItem(lEntity.getLocation(), new ItemStack(equipment.getItemInMainHand()));
+							}
+							equipment.setItemInMainHand(mainItem);
+							player.getEquipment().setItemInMainHand(new ItemStack(Material.AIR));
+							e.setCancelled(true);
+						}
+					}
+				}
+			}
 		}
 	}
 	
