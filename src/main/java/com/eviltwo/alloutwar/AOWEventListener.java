@@ -32,8 +32,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.projectiles.ProjectileSource;
-import org.bukkit.scoreboard.Scoreboard;
-import org.bukkit.scoreboard.ScoreboardManager;
 import org.bukkit.scoreboard.Team;
 
 import com.eviltwo.alloutwar.AOWArmorMaterial.AOWArmorType;
@@ -42,16 +40,10 @@ import com.eviltwo.alloutwar.AOWConfigLoader.SpecialMob;
 public class AOWEventListener implements Listener {
 	
 	private final AOW plugin;
-	private ScoreboardManager manager;
-	private Scoreboard board;
-	private AOWTitleSender titleSender;
 	private int villagerNumber = 0;
 	
 	public AOWEventListener(AOW plugin){
 		this.plugin = plugin;
-		manager = Bukkit.getScoreboardManager();
-		board = manager.getMainScoreboard();
-		titleSender = new AOWTitleSender();
 	}
 	
 	@EventHandler
@@ -66,7 +58,7 @@ public class AOWEventListener implements Listener {
 		if(e.getAction() == Action.RIGHT_CLICK_BLOCK){
 			if(mainMeta != null && mainMeta.getDisplayName() != null && mainMeta.getDisplayName().equals("TEAM CORE")){
 				// get team
-				Team team = board.getEntryTeam(player.getName());
+				Team team = plugin.manager.getTeam(player);
 				if(team == null){
 					plugin.getLogger().warning("You must join team.");
 					return;
@@ -106,7 +98,7 @@ public class AOWEventListener implements Listener {
 					if(entity.getCustomName().equals("CoreVillager"+villagerNumber) == false){
 						continue;
 					}
-					Team t = board.getEntryTeam(entity.getUniqueId().toString());
+					Team t = plugin.manager.getTeam(entity);
 					if(t!=null){
 						continue;
 					}
@@ -128,7 +120,7 @@ public class AOWEventListener implements Listener {
 				ItemStack newItem = new ItemStack(oldItem.getType(),haveAmount-1);
 				newItem.setItemMeta(oldItem.getItemMeta());
 				player.getInventory().setItemInMainHand(newItem);
-				// particle
+				// effect
 				player.getWorld().spawnParticle(Particle.EXPLOSION_HUGE, location, 1);
 				return;
 			}
@@ -138,7 +130,7 @@ public class AOWEventListener implements Listener {
 			if(mainMeta != null && mainMeta.getLore() != null && mainMeta.getLore().get(0).equals("Team monster spawn egg")){
 				e.setCancelled(true);
 				// get team
-				Team team = board.getEntryTeam(player.getName());
+				Team team = plugin.manager.getTeam(player);
 				if(team == null){
 					plugin.getLogger().warning("You must join team.");
 					return;
@@ -173,10 +165,20 @@ public class AOWEventListener implements Listener {
 	@EventHandler
 	public void onClickEntity(PlayerInteractEntityEvent e){
 		Player player = e.getPlayer();
-		Team playerTeam = getTeam(player);
+		Team playerTeam = plugin.manager.getTeam(player);
 		Entity clickedEntity = e.getRightClicked();
-		Team clickedTeam = getTeam(clickedEntity);
+		Team clickedTeam = plugin.manager.getTeam(clickedEntity);
 		ItemStack mainItem = player.getEquipment().getItemInMainHand();
+		// Villager
+		if(clickedEntity.getCustomName() != null && clickedEntity.getCustomName().equals("CoreVillager")){
+			// ready war mode
+			if(plugin.manager.isCoreProtect()){
+				player.sendMessage("["+plugin.manager.teamText("CoreVillager", clickedTeam)+"] Wait until the war begins.");
+				e.setCancelled(true);
+				return;
+			}
+		}
+		// Zombie or Skeleton armor
 		if(AOWArmorMaterial.fromMaterial(mainItem.getType()) != null){
 			AOWArmorMaterial armor = AOWArmorMaterial.fromMaterial(mainItem.getType());
 			if(clickedEntity.getType().equals(EntityType.ZOMBIE) || clickedEntity.getType().equals(EntityType.SKELETON)){
@@ -233,7 +235,7 @@ public class AOWEventListener implements Listener {
 			return;
 		}
 		LivingEntity lEntity = (LivingEntity)projectile;
-		Team team = board.getEntryTeam(lEntity.getUniqueId().toString());
+		Team team = plugin.manager.getTeam(lEntity);
 		if(team == null){
 			return;
 		}
@@ -244,10 +246,21 @@ public class AOWEventListener implements Listener {
 	public void onEntityDamage(EntityDamageByEntityEvent e){
 		Entity atkEntity = e.getDamager();
 		Entity dmgEntity = e.getEntity();
-		Team atkTeam = board.getEntryTeam(atkEntity.getUniqueId().toString());
-		Team dmgTeam = board.getEntryTeam(dmgEntity.getUniqueId().toString());
-		if(dmgEntity instanceof Player){
-			dmgTeam = board.getEntryTeam(((Player)dmgEntity).getName());
+		Team atkTeam = plugin.manager.getTeam(atkEntity);
+		Team dmgTeam = plugin.manager.getTeam(dmgEntity);
+		
+		// Villager
+		if(dmgEntity.getCustomName() != null && dmgEntity.getCustomName().equals("CoreVillager")){
+			// ready war mode
+			if(plugin.manager.isCoreProtect()){
+				e.setCancelled(true);
+				return;
+			}
+		}
+		
+		// friendly fire
+		if(atkEntity instanceof Player){
+			return;
 		}
 		if(atkTeam == null || dmgTeam == null){
 			return;
@@ -262,7 +275,7 @@ public class AOWEventListener implements Listener {
         if (e.getEntity().getType().equals(EntityType.SNOWBALL)) {
         	if(e.getEntity().getCustomName().equals("SpecialSpawnEgg")){
         		Player shotPlayer = (Player)e.getEntity().getMetadata("Shooter").get(0).value();
-            	Team team = board.getEntryTeam(shotPlayer.getName());
+            	Team team = plugin.manager.getTeam(shotPlayer);
 				if(team == null){
 					plugin.getLogger().warning("Shot snowball by no team player.");
 					return;
@@ -299,9 +312,9 @@ public class AOWEventListener implements Listener {
 		LivingEntity entity = e.getEntity();
 		LivingEntity killer = entity.getKiller();
 		// Mob dead
-		Team deadTeam = getTeam(entity);
+		Team deadTeam = plugin.manager.getTeam(entity);
 		if(killer != null){
-			Team killerTeam = getTeam(killer);
+			Team killerTeam = plugin.manager.getTeam(killer);
 			if(killerTeam != null){
 				SpecialMob deadMob = plugin.configLoader.getMobFromType(entity.getType());
 				if(deadMob != null && deadMob.isReward){
@@ -315,7 +328,7 @@ public class AOWEventListener implements Listener {
 		}
 		// Villager dead
 		if(entity.getCustomName() != null && entity.getCustomName().equals("CoreVillager")){
-			Team team = board.getEntryTeam(entity.getUniqueId().toString());
+			Team team = plugin.manager.getTeam(entity);
 			List<Entity> entities = entity.getWorld().getEntities();
 			int villagerCount = 0;
 			for(Entity searchEntity : entities){
@@ -340,12 +353,12 @@ public class AOWEventListener implements Listener {
 					}
 				}
 				Bukkit.broadcastMessage(title);
-				titleSender.setTime(0.5, 3.0, 0.5);
-				titleSender.sendTitle(title, null);
+				plugin.titleSender.setTime(0.5, 3.0, 0.5);
+				plugin.titleSender.sendTitle(title, null);
 			}else{
 				String deadCoreText = team.getPrefix() + team.getName() + " CORE IS DEAD!" + team.getSuffix() + " (" + villagerCount + " core left)";
-				titleSender.setTime(0.1, 3.0, 0.5);
-				titleSender.sendTitle(null, deadCoreText);
+				plugin.titleSender.setTime(0.1, 3.0, 0.5);
+				plugin.titleSender.sendTitle(null, deadCoreText);
 			}
 		}
 	}
@@ -353,25 +366,14 @@ public class AOWEventListener implements Listener {
 	@EventHandler
 	public void onTargetEntity(EntityTargetEvent e){
 		Entity atkEntity = e.getEntity();
-		Team atkTeam = getTeam(atkEntity);
+		Team atkTeam = plugin.manager.getTeam(atkEntity);
 		Entity tgtEntity = e.getTarget();
-		Team tgtTeam = getTeam(tgtEntity);
+		Team tgtTeam = plugin.manager.getTeam(tgtEntity);
 		if(atkTeam != null && tgtTeam != null){
 			if(atkTeam.equals(tgtTeam)){
 				e.setCancelled(true);
 				return;
 			}
 		}
-	}
-	
-	public Team getTeam(Entity entity){
-		if(entity == null){
-			return null;
-		}
-		Team team = board.getEntryTeam(entity.getUniqueId().toString());
-		if(entity instanceof Player){
-			team = board.getEntryTeam(((Player)entity).getName());
-		}
-		return team;
 	}
 }

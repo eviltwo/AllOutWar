@@ -1,24 +1,14 @@
 package com.eviltwo.alloutwar;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.ScoreboardManager;
 import org.bukkit.scoreboard.Team;
-import org.bukkit.scoreboard.Team.Option;
-import org.bukkit.scoreboard.Team.OptionStatus;
 
 public class AOWCommandExcutor implements CommandExecutor {
 
@@ -37,46 +27,28 @@ public class AOWCommandExcutor implements CommandExecutor {
 		if (cmd.getName().equalsIgnoreCase("team")) {
 			if(args.length >= 1){
 				if(args[0].equals("create")){
-					if(args.length != 4){
-						sender.sendMessage("/team create <TeamName> <Player> <TeamColor>");
+					if(args.length < 2 || args.length > 3){
+						sender.sendMessage("/team create <TeamName> [TeamColor]");
 						return true;
 					}
 					Team team = board.getTeam(args[1]);
 					if(team == null){
-						Player target = Bukkit.getPlayerExact(args[2]);
-					    if ( target == null ) {
-					        sender.sendMessage("Player name " + args[2] + " is not exists.");
-					        return true;
-					    }
-				    	ChatColor c = NameToColor(args[3]);
-                        if (c == null) {
-                            sender.sendMessage("Valid values for option color are: " + args[3]);
-                            return true;
-                        }
-				    	Team newTeam = board.registerNewTeam(args[1]);
-				    	newTeam.addEntry(target.getName());
-				    	newTeam.setDisplayName(args[1]);
-				    	newTeam.setAllowFriendlyFire(false);
-				    	newTeam.setPrefix(c.toString());
-				    	newTeam.setSuffix(ChatColor.RESET.toString());
-				    	newTeam.setOption(Option.NAME_TAG_VISIBILITY,OptionStatus.ALWAYS);
-				    	sender.sendMessage(args[2] + " is leader!");
-				    	// give item
-				    	ItemStack is = new ItemStack(Material.MONSTER_EGG, plugin.configLoader.getCoreVillagerValue());
-				    	ItemMeta meta = is.getItemMeta();
-				    	meta.setDisplayName("TEAM CORE");
-				    	List<String> lores = new ArrayList<>(Arrays.asList("Core villager spawn egg"));
-				    	meta.setLore(lores);
-				    	is.setItemMeta(meta);
-				    	// change color hint https://bukkit.org/threads/giving-players-colored-wool.61779/
-				    	PlayerInventory inventory = plugin.getServer().getPlayer(args[2]).getInventory();
-				        inventory.addItem(is);
+				    	ChatColor c = null;
+				    	if(args.length == 3){
+				    		c = NameToColor(args[2]);
+	                        if (c == null) {
+	                            sender.sendMessage("Valid values for option color are: " + args[2]);
+	                            return true;
+	                        }
+				    	}
+				    	Team newTeam = plugin.manager.createTeam(args[1], c);
 				        Bukkit.broadcastMessage("Created the team \""+newTeam.getName()+"\" !");
 				        Bukkit.broadcastMessage("You can join team \""+newTeam.getName()+"\".");
-				        Bukkit.broadcastMessage("/team join "+newTeam.getName());
+				        Bukkit.broadcastMessage("/team join "+newTeam.getName()+" <PlayerName>");
 				        return true;
 					}else{
-						sender.sendMessage("Team <" + args[1] + "> is already exists.");
+						sender.sendMessage("Team \"" + args[1] + "\" is already exists.");
+						return true;
 					}
 				}
 				if(args[0].equals("remove")){
@@ -155,6 +127,34 @@ public class AOWCommandExcutor implements CommandExecutor {
 					    Bukkit.broadcastMessage(target.getName()+" leave \""+team.getName()+"\" team.");
 					}
 					return true;
+				}
+				if(args[0].equals("start")){
+					if (args.length > 2) {
+						sender.sendMessage("/team start [time]");
+						return true;
+					}
+					if(args.length == 1){
+						plugin.manager.setReady(60);
+						sender.sendMessage(60+" seconds to start!");
+						return true;
+					}else{
+						try {
+							int startTime = Integer.parseInt(args[1]);
+							if(startTime < 60){
+								plugin.manager.setReady(60);
+								sender.sendMessage(60+" seconds to start!");
+								return true;
+							}else{
+								plugin.manager.setReady(startTime);
+								sender.sendMessage(startTime+" seconds to start!");
+								return true;
+							}
+						} catch (NumberFormatException e) {
+							 sender.sendMessage("Valid integer values: " + args[1]);
+							 sender.sendMessage("/team start [time]");
+							 return true;
+						}
+					}
 				}
 				if(args[0].equals("debug")){
 					if (args.length != 1) {

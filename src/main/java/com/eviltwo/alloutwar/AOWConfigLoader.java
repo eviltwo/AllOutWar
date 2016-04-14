@@ -13,6 +13,7 @@ public class AOWConfigLoader {
 	private List<SpecialMob> loadedMobs;
 	private int coreVillagerValue;
 	private int coreVillagerHealth;
+	private int startEmeraldValue;
 	
 	public AOWConfigLoader(Plugin plugin){
 		this.plugin = plugin;
@@ -52,6 +53,7 @@ public class AOWConfigLoader {
 		
 		coreVillagerValue = plugin.getConfig().getInt("coreVillagerValue");
 		coreVillagerHealth = plugin.getConfig().getInt("coreVillagerHealth");
+		startEmeraldValue = plugin.getConfig().getInt("startEmeraldValue");
 		
 		plugin.saveConfig();
 	}
@@ -98,6 +100,10 @@ public class AOWConfigLoader {
 	
 	public int getCoreVillagerHealth(){
 		return coreVillagerHealth;
+	}
+	
+	public int getEmeraldValue() {
+		return startEmeraldValue;
 	}
 	
 	public String EntityIdToTypeName(String id){

@@ -1,10 +1,10 @@
 name: AllOutWar
 main: com.eviltwo.alloutwar.AOW
-version: 0.7.1
+version: 0.7.5
 
 commands:
    team:
       description: This is a demo command.
-      usage: /<command> <create/remove/join/leave>...
-      permission: tutorialplugin.basic
+      usage: /<command> <create/join/start/leave/remove>...
+      permission: alloutwar.admin
       permission-message: You don't have <permission>
