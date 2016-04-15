@@ -6,6 +6,7 @@ public class AOW extends JavaPlugin {
 	
 	public AOWConfigLoader configLoader;
 	public AOWManager manager;
+	public AOWSpawner spawner;
 	public AOWCommandSender commandSender;
 	public AOWTitleSender titleSender;
 	
@@ -13,6 +14,7 @@ public class AOW extends JavaPlugin {
 	public void onEnable() {
 		configLoader = new AOWConfigLoader(this);
 		manager = new AOWManager(this);
+		spawner = new AOWSpawner(this);
 		commandSender = new AOWCommandSender();
 		titleSender = new AOWTitleSender();
 		getCommand("team").setExecutor(new AOWCommandExcutor(this));
