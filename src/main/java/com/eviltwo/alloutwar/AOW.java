@@ -8,6 +8,7 @@ public class AOW extends JavaPlugin {
 	public AOWManager manager;
 	public AOWSpawner spawner;
 	public AOWCommandSender commandSender;
+	public AOWSoundPlayer soundPlayer;
 	public AOWTitleSender titleSender;
 	
 	@Override
@@ -16,6 +17,7 @@ public class AOW extends JavaPlugin {
 		manager = new AOWManager(this);
 		spawner = new AOWSpawner(this);
 		commandSender = new AOWCommandSender();
+		soundPlayer = new AOWSoundPlayer();
 		titleSender = new AOWTitleSender();
 		getCommand("team").setExecutor(new AOWCommandExcutor(this));
 		getServer().getPluginManager().registerEvents(new AOWEventListener(this),this);

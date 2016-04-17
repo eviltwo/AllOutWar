@@ -2,6 +2,7 @@ package com.eviltwo.alloutwar;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -45,6 +46,7 @@ public class AOWCommandExcutor implements CommandExecutor {
 				        Bukkit.broadcastMessage("Created the team \""+newTeam.getName()+"\" !");
 				        Bukkit.broadcastMessage("You can join team \""+newTeam.getName()+"\".");
 				        Bukkit.broadcastMessage("/team join "+newTeam.getName()+" <PlayerName>");
+				        plugin.soundPlayer.playSoundAllPlayer(Sound.ENTITY_ARROW_HIT_PLAYER);
 				        return true;
 					}else{
 						sender.sendMessage("Team \"" + args[1] + "\" is already exists.");
@@ -91,6 +93,7 @@ public class AOWCommandExcutor implements CommandExecutor {
 					    }
 					    team.addEntry(target.getName());
 					    Bukkit.broadcastMessage(target.getName()+" join \""+team.getName()+"\" team.");
+					    plugin.soundPlayer.playSound(target, Sound.ENTITY_ARROW_HIT_PLAYER);
 					}
 					return true;
 				}

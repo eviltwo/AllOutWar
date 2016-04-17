@@ -1,15 +1,10 @@
 # All Out War Config
 
-
-
-# CORE Villager settings
 coreVillagerValue: 5
 coreVillagerHealth: 100
 
-# War rule settings
 startEmeraldValue: 32
 
-#　EntityID, Egg price, Kill drop reward
 mobs:
   - name: Zombie
     price: 4
@@ -61,7 +56,3 @@ mobs:
     reward: 1
   - name: Squid
     reward: 2
-  
-
-
-

@@ -9,6 +9,7 @@ import java.util.Set;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -59,6 +60,8 @@ public class AOWManager {
 		isCoreProtect = true;
 		plugin.titleSender.setTime(0.0, 5.0, 1.0);
 		plugin.titleSender.sendTitle(time+" seconds to start!", "Get ready for war.");
+		Bukkit.broadcastMessage(time+" seconds to start!");
+		plugin.soundPlayer.playSoundAllPlayer(Sound.ENTITY_FIREWORK_LAUNCH);
 		if(startTimer != null){
 			startTimer.remove();
 		}
@@ -94,6 +97,8 @@ public class AOWManager {
 		isCoreProtect = false;
 		plugin.titleSender.setTime(0.0, 5.0, 1.0);
 		plugin.titleSender.sendTitle("WAR START", "Destroy the enemy CORE");
+		Bukkit.broadcastMessage("WAR START");
+		plugin.soundPlayer.playSoundAllPlayer(Sound.ENTITY_GENERIC_EXPLODE);
 		if(startTimer != null){
 			startTimer.remove();
 		}
@@ -174,6 +179,8 @@ public class AOWManager {
 				if(m > 0){
 					plugin.titleSender.setTime(0.0, 5.0, 1.0);
 					plugin.titleSender.sendTitle(null, m+" minutes to start!");
+					Bukkit.broadcastMessage(m+" minutes to start!");
+					plugin.soundPlayer.playSoundAllPlayer(Sound.BLOCK_NOTE_HAT);
 				}else{
 					plugin.manager.setBegin();
 					plugin.getServer().getScheduler().cancelTask(task.getTaskId());
@@ -182,6 +189,7 @@ public class AOWManager {
 				if(time < 30 && time > 0){
 					plugin.titleSender.setTime(0.0, 0.5, 1.0);
 					plugin.titleSender.sendTitle(null, Integer.toString(time));
+					plugin.soundPlayer.playSoundAllPlayer(Sound.BLOCK_NOTE_HAT);
 				}
 			}
 		}

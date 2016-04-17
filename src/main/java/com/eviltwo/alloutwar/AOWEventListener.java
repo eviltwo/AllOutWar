@@ -8,6 +8,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -79,6 +80,7 @@ public class AOWEventListener implements Listener {
 				player.getInventory().setItemInMainHand(newItem);
 				// effect
 				player.getWorld().spawnParticle(Particle.EXPLOSION_HUGE, location, 1);
+				plugin.soundPlayer.playSoundAllPlayer(Sound.ENTITY_FIREWORK_BLAST);
 				return;
 			}
 		}
@@ -302,6 +304,10 @@ public class AOWEventListener implements Listener {
 			}
 			if(villagerCount == 0){
 				String title = team.getPrefix() + team.getName() + team.getSuffix() + " defeat!";
+				Bukkit.broadcastMessage(title);
+				plugin.titleSender.setTime(0.5, 3.0, 0.5);
+				plugin.titleSender.sendTitle(title, null);
+				plugin.soundPlayer.playSoundAllPlayer(Sound.ENTITY_LIGHTNING_IMPACT);
 				for(Entity searchEntity : entities){
 					if(team.hasEntry(searchEntity.getUniqueId().toString())){
 						if(searchEntity instanceof LivingEntity){
@@ -309,13 +315,12 @@ public class AOWEventListener implements Listener {
 						}
 					}
 				}
-				Bukkit.broadcastMessage(title);
-				plugin.titleSender.setTime(0.5, 3.0, 0.5);
-				plugin.titleSender.sendTitle(title, null);
 			}else{
 				String deadCoreText = team.getPrefix() + team.getName() + " CORE IS DEAD!" + team.getSuffix() + " (" + villagerCount + " core left)";
-				plugin.titleSender.setTime(0.1, 3.0, 0.5);
+				plugin.titleSender.setTime(0.0, 3.0, 0.5);
 				plugin.titleSender.sendTitle(null, deadCoreText);
+				Bukkit.broadcastMessage(deadCoreText);
+				plugin.soundPlayer.playSoundAllPlayer(Sound.ENTITY_ZOMBIE_VILLAGER_CONVERTED);
 			}
 		}
 	}
