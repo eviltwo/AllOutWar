@@ -17,7 +17,7 @@ public class AOW extends JavaPlugin {
 		manager = new AOWManager(this);
 		spawner = new AOWSpawner(this);
 		commandSender = new AOWCommandSender();
-		soundPlayer = new AOWSoundPlayer();
+		soundPlayer = new AOWSoundPlayer(this);
 		titleSender = new AOWTitleSender();
 		getCommand("team").setExecutor(new AOWCommandExcutor(this));
 		getServer().getPluginManager().registerEvents(new AOWEventListener(this),this);

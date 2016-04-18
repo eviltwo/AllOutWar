@@ -10,7 +10,10 @@ import org.bukkit.scoreboard.Team;
 
 public class AOWSoundPlayer {
 	
-	public AOWSoundPlayer(){
+	private AOW plugin;
+	
+	public AOWSoundPlayer(AOW plugin){
+		this.plugin = plugin;
 	}
 	
 	public void playSound(Location location, Sound sound){
@@ -22,7 +25,19 @@ public class AOWSoundPlayer {
 	}
 	
 	public void playSound(Team team, Sound sound){
-		
+		if(team == null){
+			return;
+		}
+		Collection<? extends Player> players = Bukkit.getOnlinePlayers();
+		for (Player player : players) {
+			Team playerTeam = plugin.manager.getTeam(player);
+			if(playerTeam == null){
+				continue;
+			}
+			if(team.equals(playerTeam)){
+				playSound(player, sound);
+			}
+		}
 	}
 	
 	public void playSoundAllPlayer(Sound sound){
