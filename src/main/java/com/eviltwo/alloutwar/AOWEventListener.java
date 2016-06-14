@@ -305,8 +305,7 @@ public class AOWEventListener implements Listener {
 			if(villagerCount == 0){
 				String title = team.getPrefix() + team.getName() + team.getSuffix() + " defeat!";
 				Bukkit.broadcastMessage(title);
-				plugin.titleSender.setTime(0.5, 3.0, 0.5);
-				plugin.titleSender.sendTitle(title, null);
+				plugin.titleSender.sendTitleAllPlayer(title, null, 0.5, 3.0, 0.5);
 				plugin.soundPlayer.playSoundAllPlayer(Sound.ENTITY_LIGHTNING_IMPACT);
 				for(Entity searchEntity : entities){
 					if(team.hasEntry(searchEntity.getUniqueId().toString())){
@@ -317,8 +316,7 @@ public class AOWEventListener implements Listener {
 				}
 			}else{
 				String deadCoreText = team.getPrefix() + team.getName() + " CORE IS DEAD!" + team.getSuffix() + " (" + villagerCount + " core left)";
-				plugin.titleSender.setTime(0.0, 3.0, 0.5);
-				plugin.titleSender.sendTitle(null, deadCoreText);
+				plugin.titleSender.sendTitleAllPlayer(null, deadCoreText, 0.0, 3.0, 0.5);
 				Bukkit.broadcastMessage(deadCoreText);
 				plugin.soundPlayer.playSoundAllPlayer(Sound.ENTITY_ZOMBIE_VILLAGER_CONVERTED);
 			}

@@ -58,8 +58,8 @@ public class AOWManager {
 			return;
 		}
 		isCoreProtect = true;
-		plugin.titleSender.setTime(0.0, 5.0, 1.0);
-		plugin.titleSender.sendTitle(time+" seconds to start!", "Get ready for war.");
+		
+		plugin.titleSender.sendTitleAllPlayer(time+" seconds to start!", "Get ready for war.", 0.0, 5.0, 1.0);
 		Bukkit.broadcastMessage(time+" seconds to start!");
 		plugin.soundPlayer.playSoundAllPlayer(Sound.ENTITY_FIREWORK_LAUNCH);
 		if(startTimer != null){
@@ -95,8 +95,8 @@ public class AOWManager {
 			}
 		}
 		isCoreProtect = false;
-		plugin.titleSender.setTime(0.0, 5.0, 1.0);
-		plugin.titleSender.sendTitle("WAR START", "Destroy the enemy CORE");
+		plugin.titleSender.sendTitleAllPlayer("WAR START", "Destroy the enemy CORE", 0.0, 5.0, 1.0);
+		
 		Bukkit.broadcastMessage("WAR START");
 		plugin.soundPlayer.playSoundAllPlayer(Sound.ENTITY_GENERIC_EXPLODE);
 		if(startTimer != null){
@@ -177,8 +177,7 @@ public class AOWManager {
 			if(time % 60 == 0){
 				m = time / 60;
 				if(m > 0){
-					plugin.titleSender.setTime(0.0, 5.0, 1.0);
-					plugin.titleSender.sendTitle(null, m+" minutes to start!");
+					plugin.titleSender.sendTitleAllPlayer(null, m+" minutes to start!", 0.0, 5.0, 1.0);
 					Bukkit.broadcastMessage(m+" minutes to start!");
 					plugin.soundPlayer.playSoundAllPlayer(Sound.BLOCK_NOTE_HAT);
 				}else{
@@ -187,8 +186,7 @@ public class AOWManager {
 				}
 			}else{
 				if(time < 30 && time > 0){
-					plugin.titleSender.setTime(0.0, 0.5, 1.0);
-					plugin.titleSender.sendTitle(null, Integer.toString(time));
+					plugin.titleSender.sendTitleAllPlayer(null, Integer.toString(time), 0.0, 0.5, 1.0);
 					plugin.soundPlayer.playSoundAllPlayer(Sound.BLOCK_NOTE_HAT);
 				}
 			}

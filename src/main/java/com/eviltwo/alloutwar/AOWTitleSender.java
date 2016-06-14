@@ -69,35 +69,62 @@ public class AOWTitleSender {
      */
     public void sendTitle(Player player, String title, String subtitle) {
         try {
-            if (title != null) {
-                sendPacket(
-                        player,
-                        constructorTitle.newInstance(
-                                enumTitle,
-                                methodTitle.invoke(null,
-                                        "{\"text\":\"" + title + "\"}"
-                                        )
-                                )
-                        );
+            if (title == null) {
+            	title = "";
             }
+            sendPacket(
+                    player,
+                    constructorTitle.newInstance(
+                            enumTitle,
+                            methodTitle.invoke(null,
+                                    "{\"text\":\"" + title + "\"}"
+                                    )
+                            )
+                    );
 
-            if (subtitle != null) {
-                sendPacket(
-                        player,
-                        constructorTitle.newInstance(
-                                enumSubtitle,
-                                methodTitle.invoke(
-                                        null,
-                                        "{\"text\":\"" + subtitle + "\"}"
-                                        )
-                                )
-                        );
+            if (subtitle == null) {
+            	subtitle = "";
             }
+            sendPacket(
+                    player,
+                    constructorTitle.newInstance(
+                            enumSubtitle,
+                            methodTitle.invoke(
+                                    null,
+                                    "{\"text\":\"" + subtitle + "\"}"
+                                    )
+                            )
+                    );
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
+    
+    /**
+     * 全プレイヤーに向けてタイトルを送信します。
+     * @param title 表示するメインタイトル、無い場合はnull
+     * @param subtitle 表示するサブタイトル、無い場合はnull
+     */
+    public void sendTitleAllPlayer(String title, String subtitle){
+    	for (Player player : Bukkit.getServer().getOnlinePlayers()) {
+			sendTitle(player, title, subtitle);
+		}
+    }
+    
+    /**
+     * 全プレイヤーに向けてタイトルを送信します。
+     * @param title 表示するメインタイトル、無い場合はnull
+     * @param subtitle 表示するサブタイトル、無い場合はnull
+     * @param feedIn タイトルのフェードイン
+     * @param titleShow タイトルの表示時間
+     * @param feedOut タイトルのフェードアウト
+     */
+    public void sendTitleAllPlayer(String title, String subtitle, double feedIn, double titleShow, double feedOut){
+    	for (Player player : Bukkit.getServer().getOnlinePlayers()) {
+    		setTime_second(player, feedIn, titleShow, feedOut);
+			sendTitle(player, title, subtitle);
+		}
+    }
 
     /**
      * タイトルを表示する時間を設定します(単位::second)
