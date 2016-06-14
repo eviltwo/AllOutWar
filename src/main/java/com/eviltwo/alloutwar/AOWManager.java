@@ -10,6 +10,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -151,6 +152,32 @@ public class AOWManager {
 			team = board.getEntryTeam(entity.getUniqueId().toString());
 		}
 		return team;
+	}
+	
+	public List<Entity> getEnemyCores(Team myTeam, World world){
+		List<Entity> enemyCores = new ArrayList<Entity>();
+		Set<Team> teams = board.getTeams();
+		for (Team team : teams) {
+			if(team.equals(myTeam)){
+				continue;
+			}
+			Set<String> entries = team.getEntries();
+			for (String entry : entries) {
+				List<Entity> entities = world.getEntities();
+				for (Entity entity : entities) {
+					if(entity.getUniqueId().toString().equals(entry)){
+						if(entity.getCustomName() != null && entity.getCustomName().equals("CoreVillager")){
+							enemyCores.add(entity);
+						}
+						break;
+					}
+				}
+			}
+		}
+		if(enemyCores.size() == 0){
+			return null;
+		}
+		return enemyCores;
 	}
 	
 	public String teamText(String text, Team team) {

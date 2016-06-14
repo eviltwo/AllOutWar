@@ -12,6 +12,7 @@ import org.bukkit.Sound;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Ghast;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Wolf;
@@ -254,6 +255,12 @@ public class AOWEventListener implements Listener {
 					wolf.setTamed(true);
 					wolf.setOwner(shotPlayer);
 				}
+				if(monster instanceof Ghast){
+					Ghast ghast = (Ghast)monster;
+					new AOWAssistGhast(plugin, ghast);
+					return;
+				}
+				return;
         	}
         }
     }
@@ -336,6 +343,9 @@ public class AOWEventListener implements Listener {
 				e.setCancelled(true);
 				return;
 			}
+		}
+		if(e.getEntity() instanceof Ghast){
+			plugin.getLogger().info("target:"+tgtEntity);
 		}
 	}
 }
